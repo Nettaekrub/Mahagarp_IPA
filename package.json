@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodemon": "^2.0.4",
+    "sqlite3": "^5.0.2",
+    "sqlite": "^4.0.23"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  }
+}
