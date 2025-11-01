@@ -1,5 +1,13 @@
 const { spawn } = require("child_process");
 
+function getPingArgs(ip) {
+    if (process.platform === "win32") {
+        return ["-n", "4", ip];
+    } else {
+        return ["-c", "4", ip];
+    }
+}
+
 async function pingNetworks(req, res) {
     const { ip } = req.body;
     if (!Array.isArray(ip) || ip.length === 0) {
@@ -10,7 +18,8 @@ async function pingNetworks(req, res) {
 
     const pingOne = (ip) => {
     return new Promise((resolve) => {
-        const pingProcess = spawn("ping", ["-n", "4", ip]); // -n = Windows, ถ้า Linux เปลี่ยนเป็น -c
+        const args = getPingArgs(ip);
+        const pingProcess = spawn("ping", args);
         let stdout = "";
         let stderr = "";
 
