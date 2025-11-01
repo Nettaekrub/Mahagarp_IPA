@@ -10,7 +10,7 @@ async function getIPs(req, res) {
 async function addIP(req, res) {
     const { network_id, ip_address } = req.body;
     const db = await getDb();
-    await db.run("INSERT INTO ip_entries (ip_address, network_id) VALUES (?, ?)", [ip_address, network_id]);
+    await db.run("INSERT INTO ip_entries (ip_address, network_id) VALUES (?, ?)", ip_address, network_id);
     res.sendStatus(200);
 }
 
@@ -22,9 +22,9 @@ async function editIP(req, res) {
 }
 
 async function deleteIP(req, res) {
-    const { entry_id } = req.body;
+    const { id } = req.params;
     const db = await getDb();
-    await db.run("DELETE FROM ip_entries WHERE entry_id = ?", [entry_id]);
+    await db.run("DELETE FROM ip_entries WHERE entry_id = ?", [id]);
     res.sendStatus(200);
 }
 

@@ -29,9 +29,9 @@ async function editNetwork(req, res) {
 }
 
 async function deleteNetwork(req, res) {
-    const { network_id } = req.body;
+    const { id } = req.params;
     const db = await getDb();
-    await db.run("DELETE FROM networks WHERE network_id = ?", [network_id]);
+    await db.run("DELETE FROM networks WHERE network_id = ?", [id]);
     res.sendStatus(200);
 }
 

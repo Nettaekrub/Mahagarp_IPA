@@ -10,6 +10,6 @@ const {
 router.get("/", getNetworks);
 router.post("/", addNetwork);
 router.put("/", editNetwork);
-router.delete("/", deleteNetwork);
+router.delete("/:id", deleteNetwork);
 
 module.exports = router;

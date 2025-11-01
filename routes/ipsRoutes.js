@@ -5,11 +5,11 @@ const {
     addIP,
     editIP,
     deleteIP,
-} = require("../controllers/ipController");
+} = require("../controllers/ipsController");
 
 router.get("/:network_id/ips", getIPs);
 router.post("/", addIP);
 router.put("/", editIP);
-router.delete("/", deleteIP);
+router.delete("/:id", deleteIP);
 
 module.exports = router;
