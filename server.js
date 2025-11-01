@@ -6,6 +6,7 @@ const { getDb } = require('./database/database.js');
 const ipRoutes = require("./routes/ipsRoutes");
 const tableRoutes = require("./routes/tableRoutes");
 const pingRoutes = require("./routes/pingRoutes");
+const traceRoutes = require("./routes/traceRoutes");
 
 async function startServer() {
     await getDb(); 
@@ -18,6 +19,7 @@ async function startServer() {
     app.use("/api/networks", tableRoutes);
     app.use("/api/ips", ipRoutes);   
     app.use("/api/ping", pingRoutes); 
+    app.use("/api/trace", traceRoutes); 
 
     app.listen(3000, () => console.log("Server running on port 3000"));
 
