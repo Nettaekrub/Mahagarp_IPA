@@ -7,7 +7,7 @@ const {
     deleteIP,
 } = require("../controllers/ipsController");
 
-router.get("/:network_id/ips", getIPs);
+router.get("/:network_id", getIPs);
 router.post("/", addIP);
 router.put("/", editIP);
 router.delete("/:id", deleteIP);

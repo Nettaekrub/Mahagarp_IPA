@@ -6,7 +6,6 @@ async function tracerouteNetworks(req, res) {
         return res.status(400).json({ error: "Please provide an array of ip" });
     }
 
-    // Validate IPs
     const validIPs = ip.filter(ip => /^(\d{1,3}\.){3}\d{1,3}$/.test(ip));
 
     const tracerouteOne = (ip) => {

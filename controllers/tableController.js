@@ -1,9 +1,32 @@
 const { getDb } = require("../database/database");
 
 async function getNetworks(req, res) {
+  try {
     const db = await getDb();
-    const networks = await db.all("SELECT * FROM networks");
+    const rows = await db.all(`
+        SELECT n.network_id, n.network_name, e.ip_address
+        FROM networks n
+        LEFT JOIN ip_entries e ON e.network_id = n.network_id
+    `);
+
+    const networks = Object.values(
+      rows.reduce((acc, row) => {
+        if (!acc[row.network_id]) {
+          acc[row.network_id] = {
+            network_id: row.network_id,
+            network_name: row.network_name,
+            ip_list: []
+          };
+        }
+        if (row.ip_address) acc[row.network_id].ip_list.push(row.ip_address);
+        return acc;
+      }, {})
+    );
+
     res.json(networks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }
     
 async function addNetwork(req, res) {
