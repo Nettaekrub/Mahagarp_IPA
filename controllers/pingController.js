@@ -1,35 +1,16 @@
 const { spawn } = require("child_process");
-const ipLib = require("ip");
 
-function buildArgsForPlatform(baseIP, options = {}, rawArgs = null) {
+function buildArgsForPlatform(target, options = {}, rawArgs = null) {
   if (Array.isArray(rawArgs) && rawArgs.length > 0) {
-    return [...rawArgs, baseIP];
-  }
-
-  const hasOptions =
-    options &&
-    Object.keys(options).length > 0 &&
-    Object.values(options).some((v) => v !== undefined && v !== null);
-
-  if (!hasOptions) {
-    return [baseIP]; 
+    return [...rawArgs, target];
   }
 
   const isWin = process.platform === "win32";
   const args = [];
 
-  if (options.count != null) {
-    args.push(isWin ? "-n" : "-c", String(options.count));
-  }
-
-  if (options.size != null) {
-    args.push(isWin ? "-l" : "-s", String(options.size));
-  }
-
-  if (options.ttl != null) {
-    args.push(isWin ? "-i" : "-t", String(options.ttl));
-  }
-
+  if (options.count != null) args.push(isWin ? "-n" : "-c", String(options.count));
+  if (options.size != null) args.push(isWin ? "-l" : "-s", String(options.size));
+  if (options.ttl != null) args.push(isWin ? "-i" : "-t", String(options.ttl));
   if (options.timeout_ms != null) {
     if (isWin) {
       args.push("-w", String(options.timeout_ms));
@@ -39,40 +20,24 @@ function buildArgsForPlatform(baseIP, options = {}, rawArgs = null) {
     }
   }
 
-  args.push(baseIP);
+  args.push(target);
   return args;
 }
 
 async function pingNetworks(req, res) {
-  const { ip, options, rawArgs } = req.body;
+  const { targets, options, rawArgs } = req.body;
 
-  if (!ip || !Array.isArray(ip) || ip.length === 0) {
-    return res
-      .status(400)
-      .json({ error: "Please provide an array of IP addresses (can be 'x.x.x.x' or 'x.x.x.x/24')." });
+  if (!targets || !Array.isArray(targets) || targets.length === 0) {
+    return res.status(400).json({ error: "Please provide an array of targets (IP or domain)." });
   }
 
-  const pingOne = (ipWithMask) =>
+  const pingOne = (target) =>
     new Promise((resolve) => {
-      if (!ipWithMask || typeof ipWithMask !== "string") {
-        return resolve({
-          input: ipWithMask,
-          success: false,
-          error: "Invalid entry",
-        });
+      if (!target || typeof target !== "string") {
+        return resolve({ target, success: false, result: "Invalid entry" });
       }
 
-      const [baseIP, mask] = ipWithMask.includes("/") ? ipWithMask.split("/") : [ipWithMask, null];
-
-      if (!ipLib.isV4Format(baseIP)) {
-        return resolve({
-          input: ipWithMask,
-          success: false,
-          error: "Invalid IPv4 address.",
-        });
-      }
-
-      const args = buildArgsForPlatform(baseIP, options || {}, Array.isArray(rawArgs) ? rawArgs : null);
+      const args = buildArgsForPlatform(target, options || {}, Array.isArray(rawArgs) ? rawArgs : null);
 
       const pingProcess = spawn("ping", args);
       let stdout = "";
@@ -83,9 +48,7 @@ async function pingNetworks(req, res) {
 
       const childTimeoutMs = (options && options._childTimeoutMs) || 30000;
       const childTimeout = setTimeout(() => {
-        try {
-          pingProcess.kill();
-        } catch (e) {}
+        try { pingProcess.kill(); } catch (e) {}
       }, childTimeoutMs);
 
       pingProcess.on("close", (code) => {
@@ -97,9 +60,7 @@ async function pingNetworks(req, res) {
           stdout.includes("TTL=");
 
         resolve({
-          input: ipWithMask,
-          target: baseIP,
-          mask: mask || null,
+          target,
           usedArgs: args,
           success,
           result: stderr || stdout,
@@ -110,9 +71,7 @@ async function pingNetworks(req, res) {
       pingProcess.on("error", (error) => {
         clearTimeout(childTimeout);
         resolve({
-          input: ipWithMask,
-          target: baseIP,
-          mask: mask || null,
+          target,
           usedArgs: args,
           success: false,
           result: `Ping process error: ${error.message}`,
@@ -120,7 +79,7 @@ async function pingNetworks(req, res) {
       });
     });
 
-  const results = await Promise.all(ip.map(pingOne));
+  const results = await Promise.all(targets.map(pingOne));
 
   res.json({
     total: results.length,
