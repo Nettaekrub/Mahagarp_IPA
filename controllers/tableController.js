@@ -34,7 +34,7 @@ async function addNetwork(req, res) {
     try {
         const db = await getDb();
         await db.run("INSERT INTO networks (network_name) VALUES (?)", [network_name]);
-        res.sendStatus(200);
+        res.status(200).json({ message: "OK" });
     } catch (err) {
         if (err.message.includes("UNIQUE constraint failed")) {
             res.status(400).json({ error: "Network name already exists" });
