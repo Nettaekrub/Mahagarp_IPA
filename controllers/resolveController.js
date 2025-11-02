@@ -22,7 +22,6 @@ async function resolveDNS(req, res) {
 
     const results = await Promise.all(hostnames.map(async (host) => {
         
-        // 1. "ทำความสะอาด" input ก่อน
         const target = cleanHost(host);
 
         try {
@@ -36,7 +35,6 @@ async function resolveDNS(req, res) {
             }
 
         } catch (error) {
-            // 5. ไม่ว่าจะ error จาก resolve หรือ reverse, ก็จับมาแสดงผล
             return { host, target, success: false, type: recordType, error: error.message };
         }
     }));
