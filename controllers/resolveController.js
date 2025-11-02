@@ -1,26 +1,43 @@
 const dns = require("dns").promises;
 
-function extractDomain(url) {
-    const match = url.match(/www\.(.+?)\.com/);
-    return match ? match[0] : null; 
+const allowedTypes = new Set(["A","AAAA","MX","NS","CNAME","PTR","ANY","TXT"]);
+
+function cleanHost(host) {
+    let domain = host;
+    domain = domain.replace(/^(https?:\/\/)/, "");
+    domain = domain.split('/')[0];
+    return domain;
 }
+
 async function resolveDNS(req, res) {
-    const { hostnames } = req.body;
+    const { hostnames, type } = req.body;
+
     if (!Array.isArray(hostnames) || hostnames.length === 0) {
         return res.status(400).json({ error: "Please provide an array of hostnames" });
     }
 
+    const recordType = (typeof type === "string" && allowedTypes.has(type.toUpperCase()))
+                       ? type.toUpperCase() 
+                       : "A";
+
     const results = await Promise.all(hostnames.map(async (host) => {
-        const domain = extractDomain(host);
-        if (!domain) {
-            return { hostnames, success: false, error: "Cannot extract domain" };
-        }
+        
+        // 1. "ทำความสะอาด" input ก่อน
+        const target = cleanHost(host);
 
         try {
-            const addresses = await dns.resolve(domain); 
-            return { hostnames, domain, success: true, addresses };
+            if (recordType === "PTR") {
+                const addresses = await dns.reverse(target);
+                return { host, target, success: true, type: "PTR", addresses };
+
+            } else {
+                const addresses = await dns.resolve(target, recordType);
+                return { host, target, success: true, type: recordType, addresses };
+            }
+
         } catch (error) {
-            return { hostnames, domain, success: false, error: error.message };
+            // 5. ไม่ว่าจะ error จาก resolve หรือ reverse, ก็จับมาแสดงผล
+            return { host, target, success: false, type: recordType, error: error.message };
         }
     }));
 
