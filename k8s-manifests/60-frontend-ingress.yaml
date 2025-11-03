@@ -16,14 +16,14 @@ spec:
     http:
       paths:
       - path: /api(/|$)(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific 
         backend:
           service:
             name: ipa-backend-svc
             port:
               number: 80
       - path: /
-        pathType: Prefix
+        pathType: Prefix 
         backend:
           service:
             name: ipa-frontend-svc
