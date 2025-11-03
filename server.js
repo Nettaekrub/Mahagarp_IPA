@@ -17,11 +17,11 @@ async function startServer() {
     app.use(cors());
     app.use(bodyParser.json());
 
-    app.use("/api/networks", tableRoutes);
-    app.use("/api/ips", ipRoutes);   
-    app.use("/api/ping", pingRoutes); 
-    app.use("/api/trace", traceRoutes); 
-    app.use("/api/resolve", resolveRoutes); 
+    app.use("/networks", tableRoutes);
+    app.use("/ips", ipRoutes);   
+    app.use("/ping", pingRoutes); 
+    app.use("/trace", traceRoutes); 
+    app.use("/resolve", resolveRoutes); 
 
     const PORT = 3000;
     const HOST = '0.0.0.0';
