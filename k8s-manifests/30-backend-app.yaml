@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ipa-backend-db-pvc
+  namespace: ipa-project
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipa-backend
+  namespace: ipa-project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipa-backend
+  template:
+    metadata:
+      labels:
+        app: ipa-backend
+    spec:
+
+      containers:
+      - name: backend
+
+        image: "ayyaya21/mahagarp:latest"
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: db-storage
+          mountPath: "/app/database"
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: ipa-backend-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipa-backend-svc
+  namespace: ipa-project
+spec:
+  selector:
+    app: ipa-backend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
