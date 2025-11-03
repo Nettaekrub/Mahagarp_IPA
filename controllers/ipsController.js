@@ -1,4 +1,4 @@
-const { getDb } = require("../database/database");
+const { getDb } = require("../database");
 
 async function getIPs(req, res) {
     const { network_id } = req.params; 

@@ -1,4 +1,4 @@
-const { getDb } = require("../database/database");
+const { getDb } = require("../database");
 
 async function getNetworks(req, res) {
   try {

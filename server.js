@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { getDb } = require('./database/database.js');
+const { getDb } = require('./database.js');
 
 const ipRoutes = require("./routes/ipsRoutes");
 const tableRoutes = require("./routes/tableRoutes");
