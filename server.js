@@ -23,7 +23,12 @@ async function startServer() {
     app.use("/api/trace", traceRoutes); 
     app.use("/api/resolve", resolveRoutes); 
 
-    app.listen(3000, () => console.log("Server running on port 3000"));
+    const PORT = 3000;
+    const HOST = '0.0.0.0';
+
+    app.listen(PORT, HOST, () => {
+        console.log(`Server running om http://${HOST}:${PORT}`);
+    });
 
 }
 

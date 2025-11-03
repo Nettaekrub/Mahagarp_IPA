@@ -1,5 +1,7 @@
 FROM node:18-alpine
 
+RUN apk add --no-cache iputils busybox-extras
+
 WORKDIR /app
 COPY package*.json ./
 
